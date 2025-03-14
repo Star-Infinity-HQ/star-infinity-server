@@ -1,0 +1,100 @@
+@startuml Database Schema
+
+' Styling
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b><&key> x</b>
+!define foreign_key(x) <i><&key> x</i>
+!define required(x) <u>x</u>
+!define index(x) <color:blue><&bookmark>x</color>
+skinparam class {
+    BackgroundColor White
+    BorderColor #444444
+    ArrowColor #444444
+}
+
+' Admin Table
+table(Admin) {
+    primary_key(admin_id)
+    required(username)
+    required(password)
+    required(email)
+    createdAt
+    modifiedAt
+    ..indices..
+    index(idx_admin_username)
+    index(idx_admin_email)
+}
+
+' Instructor Table
+table(Instructor) {
+    primary_key(instructor_id)
+    foreign_key(created_by_admin_id)
+    required(username)
+    required(password)
+    required(email)
+    required(instructor_description)
+    instructor_contact
+    instructor_address
+    instructor_timezone
+    createdAt
+    modifiedAt
+    ..indices..
+    index(idx_instructor_username)
+    index(idx_instructor_email)
+}
+
+' Course Table
+table(Course) {
+    primary_key(course_id)
+    foreign_key(instructor_id)
+    foreign_key(approved_by_admin_id)
+    required(course_code)
+    course_name
+    course_description
+    course_image
+    required(course_duration)
+    required(course_price)
+    course_discount
+    required(course_start_date)
+    required(course_end_date)
+    is_approved
+    createdAt
+    modifiedAt
+    ..indices..
+    index(idx_course_code)
+    index(idx_course_dates)
+    index(idx_course_approved)
+}
+
+' Course Instructor Many-to-Many Relationship
+table(InstructorCourse) {
+    primary_key(instructor_course_id)
+    foreign_key(instructor_id)
+    foreign_key(course_id)
+    createdAt
+    modifiedAt
+}
+
+' System Log Table managed by Admin
+table(SystemLog) {
+    primary_key(log_id)
+    foreign_key(admin_id)
+    required(log_type)
+    required(log_message)
+    required(log_timestamp)
+    log_details
+    ..indices..
+    index(idx_log_timestamp)
+    index(idx_log_type)
+}
+
+' Relationships
+Course }o--|| Instructor : "taught by"
+Instructor }|-o{ Course : "teaches" 
+Instructor }o--|| Admin : "managed by"
+Course }o--o| Admin : "approved by"
+Admin ||--o{ SystemLog : "creates"
+InstructorCourse }|--|| Instructor : "links"
+InstructorCourse }|--|| Course : "links"
+
+@enduml
