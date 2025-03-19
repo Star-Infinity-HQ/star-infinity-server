@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "type": "module",
-  "keywords": ["star-infinity", "star-infinity-api", "siapi"],
+  "keywords": [
+    "star-infinity",
+    "star-infinity-api",
+    "siapi"
+  ],
   "author": {
     "name": "Muhammad Bilal Khan",
     "email": "lofi.audit@gmail.com",
@@ -26,6 +30,8 @@
     "biome:lint": "npx @biomejs/biome lint --write ."
   },
   "dependencies": {
+    "@auth/express": "^0.9.0",
+    "@auth/prisma-adapter": "^2.8.0",
     "arcjet": "^1.0.0-beta.3",
     "express": "^4.21.2",
     "prisma": "^6.5.0",
