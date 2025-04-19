@@ -1,5 +1,8 @@
-import { logger } from "./utils/logger.js";
+import { logger } from "./shared/logger.js";
 import express from "express";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
@@ -7,9 +10,9 @@ app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 
-app.listen(3000, () => {
-  logger.info("Success, Server Started on Port 3000");
-  logger.info("Route: http://localhost:3000/");
+app.listen(process.env.PORT, () => {
+  logger.info(`Success, Server Started on Port: ${process.env.PORT}`);
+  logger.info(`Route: http://localhost:${process.env.PORT}/`);
 });
 
 export default app;

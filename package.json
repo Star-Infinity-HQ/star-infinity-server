@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "type": "module",
+  "_moduleAliases": {
+    "@": "src"
+  },
   "keywords": [
     "star-infinity",
     "star-infinity-api",
@@ -20,8 +23,8 @@
     "url": "https://github.com/Star-Infinity-HQ/star-infinity-server.git"
   },
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "node start.js",
+    "dev": "nodemon",
     "test": "",
     "build:docker": "",
     "build:docker:dev": "",
@@ -33,7 +36,9 @@
     "@auth/express": "^0.9.0",
     "@auth/prisma-adapter": "^2.8.0",
     "arcjet": "^1.0.0-beta.3",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "module-alias": "^2.2.3",
     "prisma": "^6.5.0",
     "winston": "^3.17.0"
   },
