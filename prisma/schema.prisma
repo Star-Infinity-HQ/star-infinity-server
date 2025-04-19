@@ -1,4 +1,4 @@
-// This is your Prisma schema file.
+// Prisma Schema (File)
 // Prisma Documentation: https://pris.ly/d/prisma-schema
 // Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
@@ -7,6 +7,67 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DEV_DATABASE_URL")
+  directUrl = env("DEV_DIRECT_URL")
+}
+
+model Admin {
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  email      String   @unique
+  createdAt  DateTime @default(now())
+  modifiedAt DateTime @updatedAt
+}
+
+model Instructor {
+  id                    Int                @id @default(autoincrement())
+  username              String             @unique
+  password              String
+  email                 String             @unique
+  instructorDescription String
+  instructorBio         String
+  instructorAddress     String
+  instructorTimezone    String
+  createdAt             DateTime           @default(now())
+  modifiedAt            DateTime           @updatedAt
+  courses               InstructorCourse[]
+}
+
+model Course {
+  id                Int                @id @default(autoincrement())
+  instructorId      Int
+  approvedByAdminId Int?
+  courseCode        String
+  courseName        String
+  courseDescription String
+  courseDuration    Int
+  coursePrice       Float
+  courseDiscount    Float
+  courseStartDate   String
+  courseEndDate     String
+  isApproved        Boolean
+  createdAt         DateTime           @default(now())
+  modifiedAt        DateTime           @updatedAt
+  instructors       InstructorCourse[]
+}
+
+model InstructorCourse {
+  id           Int        @id @default(autoincrement())
+  instructorId Int
+  courseId     Int
+  instructor   Instructor @relation(fields: [instructorId], references: [id])
+  course       Course     @relation(fields: [courseId], references: [id])
+  createdAt    DateTime   @default(now())
+  modifiedAt   DateTime   @updatedAt
+}
+
+model SystemLog {
+  id           Int      @id @default(autoincrement())
+  adminId      Int
+  logType      String
+  logMessage   String
+  logDetails   String
+  logTimestamp DateTime @default(now())
 }
