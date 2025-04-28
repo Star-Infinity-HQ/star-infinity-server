@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken";
 import { logger } from "../../shared/logger.js";
 
 /**
- * Hash a password using bcrypt
+ * Hash a password using bcrypt for secure passwords.
+ * 
  * @param {string} password - Plain text password
- * @returns {string} - Hashed password
+ * @returns {Promise<string>} - Hashed password
  */
 export const hashPassword = async (password) => {
     try {
@@ -18,10 +19,11 @@ export const hashPassword = async (password) => {
 };
 
 /**
- * Compare a password with a hashed password
+ * Compare a password with a hashed password.
+ * 
  * @param {string} password - Plain text password
  * @param {string} hashedPassword - Hashed password
- * @returns {boolean} - True if passwords match
+ * @returns {Promise<boolean>} - True if passwords match
  */
 export const comparePassword = async (password, hashedPassword) => {
     try {
@@ -33,7 +35,8 @@ export const comparePassword = async (password, hashedPassword) => {
 };
 
 /**
- * Generate a JWT token
+ * Generate a JWT token.
+ * 
  * @param {Object} payload - Token payload
  * @param {string} expiresIn - Token expiration time
  * @returns {string} - JWT token
@@ -48,7 +51,8 @@ export const generateToken = (payload, expiresIn = "1d") => {
 };
 
 /**
- * Verify a JWT token
+ * Verify a JWT token.
+ * 
  * @param {string} token - JWT token
  * @returns {Object} - Token payload
  */

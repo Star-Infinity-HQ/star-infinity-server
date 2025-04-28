@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "../../shared/logger.js";
+import { hashPassword } from "../helpers/func.helper.js";
 
 const prisma = new PrismaClient();
 
@@ -7,7 +8,7 @@ export const adminResolvers = {
     Query: {
         /**
          * GET - singular admin by their ID.
-         * 
+         *
          * @param {*} _ - Parent resolver
          * @param {*} args - Arguments containing admin ID
          * @returns {Object} - Admin object
@@ -27,7 +28,7 @@ export const adminResolvers = {
 
         /**
          * GET - all available admins.
-         * 
+         *
          * @returns {Array} - Array of admin objects
          */
         admins: async () => {
@@ -44,7 +45,7 @@ export const adminResolvers = {
     Mutation: {
         /**
          * POST - Create a new admin.
-         * 
+         *
          * @param {*} _ - Parent resolver
          * @param {*} args - Arguments containing admin data
          * @returns {Object} - Created admin object
@@ -61,24 +62,26 @@ export const adminResolvers = {
                     throw new Error("Admin with this email already exists");
                 }
 
+                const hashedPassword = await hashPassword(password);
+
                 const admin = await prisma.admin.create({
                     data: {
                         username,
                         email,
-                        password
+                        password: hashedPassword
                     }
                 });
 
                 return admin;
             } catch (error) {
                 logger.error("Error creating admin:", error);
-                throw new Error("Failed to create admin");
+                throw new Error(error.message || "Failed to create admin");
             }
         },
 
         /**
          * PUT - Update an existing admin.
-         * 
+         *
          * @param {*} _ - Parent resolver
          * @param {*} args - Arguments containing admin data
          * @returns {Object} - Updated admin object
@@ -95,25 +98,31 @@ export const adminResolvers = {
                     throw new Error("Admin not found");
                 }
 
+                const updateData = {
+                    ...(username && { username }),
+                    ...(email && { email })
+                };
+
+                if (password) {
+                    const hashedPassword = await hashPassword(password);
+                    updateData.password = hashedPassword;
+                }
+
                 const updatedAdmin = await prisma.admin.update({
                     where: { id: parseInt(id) },
-                    data: {
-                        ...(username && { username }),
-                        ...(email && { email }),
-                        ...(password && { password })
-                    }
+                    data: updateData
                 });
 
                 return updatedAdmin;
             } catch (error) {
                 logger.error("Error updating admin:", error);
-                throw new Error("Failed to update admin");
+                throw new Error(error.message || "Failed to update admin");
             }
         },
 
         /**
          * DELETE - Delete an existing admin by ID.
-         * 
+         *
          * @param {*} _ - Parent resolver
          * @param {*} args - Arguments containing admin ID
          * @returns {Boolean} - True if deletion was successful

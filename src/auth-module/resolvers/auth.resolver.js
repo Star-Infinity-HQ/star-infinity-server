@@ -1,6 +1,7 @@
 import { supabase, verifyToken, refreshToken as refreshAuthToken } from "../../shared/auth.js";
 import { logger } from "../../shared/logger.js";
 import { PrismaClient } from "@prisma/client";
+import { hashPassword, comparePassword } from "../helpers/func.helper.js";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ export const authResolvers = {
   Query: {
     /**
      * GET - current authenticated user information.
-     * 
+     *
      * @param {*} _ - Parent resolver
      * @param {*} __ - Arguments
      * @param {*} context - GraphQL context containing user information
@@ -51,7 +52,7 @@ export const authResolvers = {
 
     /**
      * VERIFY - If the token is a valid token or not.
-     * 
+     *
      * @param {*} _ - Parent resolver
      * @param {*} args - Arguments containing token
      * @returns {Boolean} - True if token is valid, false otherwise
@@ -70,7 +71,7 @@ export const authResolvers = {
   Mutation: {
     /**
      * POST - Authenticate a user and return an authentication token.
-     * 
+     *
      * @param {*} _ - Parent resolver
      * @param {*} args - Arguments containing login input
      * @returns {Object} - Auth object containing token and user
@@ -79,6 +80,40 @@ export const authResolvers = {
       try {
         const { email, password } = input;
 
+        let role = "STUDENT";
+        let userId = null;
+        let isPasswordValid = false;
+
+        const admin = await prisma.admin.findUnique({
+          where: { email }
+        });
+
+        if (admin) {
+          isPasswordValid = await comparePassword(password, admin.password);
+
+          if (isPasswordValid) {
+            role = "ADMIN";
+            userId = admin.id;
+          }
+        } else {
+          const instructor = await prisma.instructor.findUnique({
+            where: { email }
+          });
+
+          if (instructor) {
+            isPasswordValid = await comparePassword(password, instructor.password);
+
+            if (isPasswordValid) {
+              role = "INSTRUCTOR";
+              userId = instructor.id;
+            }
+          }
+        }
+
+        if (!isPasswordValid) {
+          throw new Error("Invalid email or password");
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
@@ -86,28 +121,7 @@ export const authResolvers = {
 
         if (error) {
           logger.error("Login error:", error);
-          throw new Error("Invalid email or password");
-        }
-
-        let role = "STUDENT";
-        let userId = null;
-
-        const admin = await prisma.admin.findUnique({
-          where: { email }
-        });
-
-        if (admin) {
-          role = "ADMIN";
-          userId = admin.id;
-        } else {
-          const instructor = await prisma.instructor.findUnique({
-            where: { email }
-          });
-
-          if (instructor) {
-            role = "INSTRUCTOR";
-            userId = instructor.id;
-          }
+          throw new Error("Authentication service error");
         }
 
         return {
@@ -120,13 +134,13 @@ export const authResolvers = {
         };
       } catch (error) {
         logger.error("Login error:", error);
-        throw new Error("Failed to login");
+        throw new Error(error.message || "Failed to login");
       }
     },
 
     /**
      * POST - Register a new user and return an authentication token.
-     * 
+     *
      * @param {*} _ - Parent resolver
      * @param {*} args - Arguments containing register input
      * @returns {Object} - Auth object containing token and user
@@ -135,7 +149,8 @@ export const authResolvers = {
       try {
         const { username, email, password, role } = input;
 
-        // Register with Supabase
+        const hashedPassword = await hashPassword(password);
+
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password
@@ -153,7 +168,7 @@ export const authResolvers = {
             data: {
               username,
               email,
-              password: "hashed_password" // TODO: Hash the password properly.
+              password: hashedPassword
             }
           });
 
@@ -163,7 +178,7 @@ export const authResolvers = {
             data: {
               username,
               email,
-              password: "hashed_password", // TODO: Hash the password properly.
+              password: hashedPassword,
               instructorDescription: "",
               instructorBio: "",
               instructorAddress: "",
@@ -184,13 +199,13 @@ export const authResolvers = {
         };
       } catch (error) {
         logger.error("Registration error:", error);
-        throw new Error("Failed to register user");
+        throw new Error(error.message || "Failed to register user");
       }
     },
 
     /**
      * GET - Refresh the selected expired token.
-     * 
+     *
      * @param {*} _ - Parent resolver
      * @param {*} args - Arguments containing token
      * @returns {Object} - Auth object containing new token and user
@@ -247,7 +262,7 @@ export const authResolvers = {
 
     /**
      * POST - Logout the current user.
-     * 
+     *
      * @returns {Boolean} - True if logout was successful
      */
     logout: async () => {
