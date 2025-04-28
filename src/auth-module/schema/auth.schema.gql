@@ -1,1 +1,47 @@
-# TODO: Implement auth schema.
+# Scalar: DateTime
+scalar DateTime
+
+# Authentication Types
+type Auth {
+    token: String!
+    user: User!
+}
+
+type User {
+    id: ID!
+    email: String!
+    role: UserRole!
+}
+
+enum UserRole {
+    ADMIN
+    INSTRUCTOR
+    STUDENT
+}
+
+# Authentication Inputs
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+input RegisterInput {
+    username: String!
+    email: String!
+    password: String!
+    role: UserRole!
+}
+
+# Authentication Mutations
+type Mutation {
+    login(input: LoginInput!): Auth!
+    register(input: RegisterInput!): Auth!
+    refreshToken(token: String!): Auth!
+    logout: Boolean!
+}
+
+# Authentication Queries
+type Query {
+    me: User
+    verifyToken(token: String!): Boolean!
+}

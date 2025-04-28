@@ -1,1 +1,35 @@
-# TODO: Implement admin schema.
+# Admin Schema
+type Admin {
+    id: ID!
+    username: String!
+    email: String!
+    createdAt: DateTime!
+    modifiedAt: DateTime!
+}
+
+# Admin inputs
+input CreateAdminInput {
+    username: String!
+    email: String!
+    password: String!
+}
+
+input UpdateAdminInput {
+    id: ID!
+    username: String
+    email: String
+    password: String
+}
+
+# Admin Mutations
+type Mutation {
+    createAdmin(input: CreateAdminInput!): Admin!
+    updateAdmin(input: UpdateAdminInput!): Admin!
+    deleteAdmin(id: ID!): Boolean!
+}
+
+# Admin Queries
+type Query {
+    admin(id: ID!): Admin
+    admins: [Admin!]!
+}

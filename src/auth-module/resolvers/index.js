@@ -1,2 +1,2 @@
-export * from "./auth.resolvers.js";
-export * from "./admin.resolvers.js";
+export { authResolvers } from "./auth.resolver.js";
+export { adminResolvers } from "./admin.resolver.js";

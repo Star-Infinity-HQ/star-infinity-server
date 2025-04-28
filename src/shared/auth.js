@@ -6,29 +6,33 @@ import { logger } from "./logger.js";
 
 dotenv.config();
 
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.PROD_SUPABASE_URL;
+const supabaseKey = process.env.PROD_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  logger.error("Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_ANON_KEY in .env");
+  logger.error("Missing Supabase credentials, make sure to set PROD_SUPABASE_URL and PROD_SUPABASE_ANON_KEY in .env");
   process.exit(1);
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Initialize Arcjet
 const arcjet = new Arcjet({
-  key: process.env.ARCJET_KEY,
+  key: process.env.ARCJET_PROJECT_KEY,
   site: "star-infinity",
 });
 
-// Middleware to protect routes with Arcjet
 export const arcjetProtect = protect(arcjet, {
   rules: ["shield", "bot", "ratelimit"],
 });
 
-// Authentication middleware using Supabase
+/**
+ * Authentication middleware to protect specific routes from unwanted access.
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 export const authRequired = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   
@@ -43,24 +47,27 @@ export const authRequired = async (req, res, next) => {
   }
   
   try {
-    // Verify the token with Supabase
     const { data, error } = await supabase.auth.getUser(token);
     
     if (error || !data) {
       logger.error("Authentication error:", error);
       return res.status(401).json({ error: "Invalid authentication token" });
     }
-    
-    // Add the user to the request object
     req.user = data.user;
     next();
+
   } catch (error) {
     logger.error("Authentication error:", error);
     return res.status(401).json({ error: "Authentication failed" });
   }
 };
 
-// Function to verify token validity
+/**
+ * Token verification process to handle token validation.
+ * 
+ * @param {*} token 
+ * @returns 
+ */
 export const verifyToken = async (token) => {
   try {
     const { data, error } = await supabase.auth.getUser(token);
@@ -76,7 +83,12 @@ export const verifyToken = async (token) => {
   }
 };
 
-// Get current user from token
+/**
+ * Get the current user based on the provided token and signature.
+ * 
+ * @param {*} token 
+ * @returns 
+ */
 export const getCurrentUser = async (token) => {
   try {
     const { data, error } = await supabase.auth.getUser(token);
@@ -92,7 +104,12 @@ export const getCurrentUser = async (token) => {
   }
 };
 
-// Refresh token function
+/**
+ * Refresh current token after its expiration, refresh time is subject to change.
+ * 
+ * @param {*} refreshToken 
+ * @returns 
+ */
 export const refreshToken = async (refreshToken) => {
   try {
     const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });

@@ -1,15 +1,16 @@
 // Prisma Schema (File)
-// Prisma Documentation: https://pris.ly/d/prisma-schema
-// Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Reference(s):
+// - https://pris.ly/d/prisma-schema
+// -  https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
+  output = "./src/db/"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DEV_DATABASE_URL")
-  directUrl = env("DEV_DIRECT_URL")
+  url       = env("DATABASE_URL")
 }
 
 model Admin {

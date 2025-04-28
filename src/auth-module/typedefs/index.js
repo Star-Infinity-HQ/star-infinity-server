@@ -1,2 +1,7 @@
-export * from "./auth.typeDefs.js";
-export * from "./admin.typeDefs.js";
+import authTypeDefs from "./auth.typeDefs.js";
+import adminTypeDefs from "./admin.typeDefs.js";
+
+export const authModuleTypeDefs = [
+  authTypeDefs,
+  adminTypeDefs
+];
