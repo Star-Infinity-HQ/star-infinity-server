@@ -3,6 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CoursesModule } from './courses/courses.module';
+import { AdminModule } from './admin/admin.module';
+import { InstructorsModule } from './instructors/instructors.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import jwtConfig from './shared/config/jwt.config';
@@ -23,6 +26,9 @@ import jwtConfig from './shared/config/jwt.config';
     // Feature modules
     AuthModule,
     UsersModule,
+    CoursesModule,
+    AdminModule,
+    InstructorsModule,
   ],
   controllers: [],
   providers: [

@@ -40,33 +40,13 @@ async function bootstrap() {
   // Swagger API documentation configuration
   const config = new DocumentBuilder()
     .setTitle('Star Infinity API')
-    .setDescription(`
-      # Star Infinity API Documentation
-
-      Welcome to the Star Infinity API! This is a comprehensive REST API for managing courses, instructors, and students.
-
-      ## Features
-      - 🔐 JWT-based authentication with role-based access control
-      - 👥 User management (Admin, Instructor, Student roles)
-      - 📚 Course management and approval system
-      - 🏫 Instructor profile management
-      - 📊 System logging and monitoring
-      - 🔒 Secure password hashing with bcrypt
-      - 🚦 Rate limiting and security middleware
-
-      ## Authentication
-      Most endpoints require authentication. Use the login endpoint to get your JWT token, then include it in the Authorization header as 'Bearer {token}'.
-
-      ## API Versioning
-      All endpoints are versioned and follow the pattern: \`/api/v1/{module}/{endpoint}\`
-    `)
     .setVersion('1.0.0')
     .setContact(
       'Star Infinity Development Team',
       'https://github.com/Star-Infinity-HQ/star-infinity-server',
-      'lofi.audit@gmail.com'
+      '', // TODO: Add your email here.
     )
-    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+    .setLicense('MIT', '') // TODO: Add license from LICENSE file in repo here.
     .addBearerAuth(
       {
         type: 'http',
@@ -80,9 +60,9 @@ async function bootstrap() {
     )
     .addTag('Authentication', 'User authentication and authorization endpoints')
     .addTag('Users', 'User profile and management endpoints')
-    .addTag('Courses', 'Course management and enrollment endpoints')
-    .addTag('Instructors', 'Instructor profile and course assignment endpoints')
-    .addTag('Admin', 'Administrative functions and system management')
+    .addTag('Courses', 'Course management, creation, and approval endpoints')
+    .addTag('Instructors', 'Instructor profiles, analytics, and course management')
+    .addTag('Admin', 'Administrative dashboard, system monitoring, and bulk operations')
     .addServer(process.env.API_URL || 'http://localhost:3001', 'Development server')
     .addServer('https://api.star-infinity.com', 'Production server')
     .build();

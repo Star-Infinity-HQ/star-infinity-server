@@ -19,6 +19,9 @@ model Admin {
   password   String
   email      String   @unique
 
+  // Relations
+  approvedCourses Course[] @relation("AdminApprovedCourses")
+
   createdAt  DateTime @default(now())
   modifiedAt DateTime @updatedAt
 }
@@ -32,8 +35,10 @@ model Instructor {
   instructorBio         String
   instructorAddress     String
   instructorTimezone    String
-  courses               InstructorCourse[]
 
+  // Relations
+  instructorCourses     InstructorCourse[]
+  courses               Course[]           @relation("InstructorCourses")
 
   createdAt             DateTime           @default(now())
   modifiedAt            DateTime           @updatedAt
@@ -43,18 +48,24 @@ model Course {
   id                Int                @id @default(autoincrement())
   instructorId      Int
   approvedByAdminId Int?
-  courseCode        String
+  courseCode        String             @unique
   courseName        String
   courseDescription String
+  courseImage       String?
   courseDuration    Int
   coursePrice       Float
-  courseDiscount    Float
+  courseDiscount    Float?
   courseStartDate   String
   courseEndDate     String
-  isApproved        Boolean
+  isApproved        Boolean            @default(false)
+
+  // Relations
+  instructor        Instructor         @relation("InstructorCourses", fields: [instructorId], references: [id])
+  approvedByAdmin   Admin?             @relation("AdminApprovedCourses", fields: [approvedByAdminId], references: [id])
+  instructorCourses InstructorCourse[]
+
   createdAt         DateTime           @default(now())
   modifiedAt        DateTime           @updatedAt
-  instructors       InstructorCourse[]
 }
 
 model InstructorCourse {
